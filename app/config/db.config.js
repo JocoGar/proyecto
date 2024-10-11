@@ -25,5 +25,9 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize; 
 
 db.tipoHabitacion = require('../models/tipoHabitacion.model.js')(sequelize, Sequelize);
+db.tipoProdservice= require('../models/tipoProdservice.model.js')(sequelize, Sequelize);
+db.facturaEncabezado= require('../models/facturaEncabezado.model.js')(sequelize, Sequelize);
+db.facturaDetalle= require('../models/facturaDetalle.model.js')(sequelize, Sequelize);
+db.usuario= require('../models/usuario.model.js')(sequelize, Sequelize);
 
 module.exports = db;
