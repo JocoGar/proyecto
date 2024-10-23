@@ -1,8 +1,8 @@
-
 const db = require('../config/db.config.js');
 const Empleado = db.empleado;
+const Usuario = db.usuario; 
 
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
     let empleado = {};
 
     try {
@@ -13,12 +13,12 @@ exports.create = (req, res) => {
         empleado.cargo = req.body.cargo;
         empleado.salario = req.body.salario;
         empleado.estado = req.body.estado;
+        empleado.id_usuario = req.body.id_usuario; 
 
-        Empleado.create(empleado).then(result => {
-            res.status(200).json({
-                message: "Empleado creado exitosamente con id = " + result.id_empleado,
-                empleado: result,
-            });
+        const result = await Empleado.create(empleado);
+        res.status(200).json({
+            message: "Empleado creado exitosamente con id = " + result.id_empleado,
+            empleado: result,
         });
     } catch (error) {
         res.status(500).json({
@@ -28,45 +28,54 @@ exports.create = (req, res) => {
     }
 };
 
-exports.retrieveAllEmpleados = (req, res) => {
-    Empleado.findAll({
-        where: { estado: 1 }
-    })
-        .then(empleadoInfos => {
-            res.status(200).json({
-                message: "¡Empleados obtenidos exitosamente!",
-                empleados: empleadoInfos
-            });
-        })
-        .catch(error => {
-            res.status(500).json({
-                message: "¡Error al obtener los empleados!",
-                error: error
-            });
+exports.retrieveAllEmpleados = async (req, res) => {
+    try {
+        const empleadoInfos = await Empleado.findAll({
+            where: { estado: 1 },
+            include: [{
+                model: Usuario, // Agregamos el modelo Usuario
+                attributes: ['nombre_usuario'], // Solo queremos el nombre_usuario
+            }],
         });
+        res.status(200).json({
+            message: "¡Empleados obtenidos exitosamente!",
+            empleados: empleadoInfos
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "¡Error al obtener los empleados!",
+            error: error
+        });
+    }
 };
 
-exports.getEmpleadoById = (req, res) => {
+exports.getEmpleadoById = async (req, res) => {
     let empleadoId = req.params.id;
-    Empleado.findByPk(empleadoId)
-        .then(empleado => {
-            if (!empleado) {
-                return res.status(404).json({
-                    message: "No se encontró el empleado con id = " + empleadoId,
-                    error: "404"
-                });
-            }
-            res.status(200).json({
-                message: "Empleado obtenido exitosamente con id = " + empleadoId,
-                empleado: empleado
-            });
-        })
-        .catch(error => {
-            res.status(500).json({
-                message: "¡Error al obtener el empleado con id!",
-                error: error
-            });
+    try {
+        const empleado = await Empleado.findByPk(empleadoId, {
+            include: [{
+                model: Usuario, // Agregamos el modelo Usuario
+                attributes: ['nombre_usuario'], // Solo queremos el nombre_usuario
+            }],
         });
+        
+        if (!empleado) {
+            return res.status(404).json({
+                message: "No se encontró el empleado con id = " + empleadoId,
+                error: "404"
+            });
+        }
+        
+        res.status(200).json({
+            message: "Empleado obtenido exitosamente con id = " + empleadoId,
+            empleado: empleado
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "¡Error al obtener el empleado con id!",
+            error: error
+        });
+    }
 };
 
 exports.updateById = async (req, res) => {
@@ -87,14 +96,22 @@ exports.updateById = async (req, res) => {
                 email: req.body.email,
                 cargo: req.body.cargo,
                 salario: req.body.salario,
-                estado: req.body.estado
+                estado: req.body.estado,
+                id_usuario: req.body.id_usuario // Aseguramos que se actualice el id_usuario
             };
 
-            let result = await Empleado.update(updatedObject, { returning: true, where: { id_empleado: empleadoId } });
+            await Empleado.update(updatedObject, { where: { id_empleado: empleadoId } });
+
+            const updatedEmpleado = await Empleado.findByPk(empleadoId, {
+                include: [{
+                    model: Usuario,
+                    attributes: ['nombre_usuario'],
+                }],
+            });
 
             res.status(200).json({
                 message: "Actualización exitosa del empleado con id = " + empleadoId,
-                empleado: updatedObject,
+                empleado: updatedEmpleado,
             });
         }
     } catch (error) {
@@ -131,22 +148,25 @@ exports.deleteById = async (req, res) => {
     }
 };
 
-exports.retrieveAllDesactivados = (req, res) => {
-    Empleado.findAll({
-        where: { estado: 0 }
-    })
-        .then(empleadoInfos => {
-            res.status(200).json({
-                message: "¡Empleados desactivados obtenidos exitosamente!",
-                empleados: empleadoInfos
-            });
-        })
-        .catch(error => {
-            res.status(500).json({
-                message: "¡Error al obtener los empleados desactivados!",
-                error: error
-            });
+exports.retrieveAllDesactivados = async (req, res) => {
+    try {
+        const empleadoInfos = await Empleado.findAll({
+            where: { estado: 0 },
+            include: [{
+                model: Usuario,
+                attributes: ['nombre_usuario'],
+            }],
         });
+        res.status(200).json({
+            message: "¡Empleados desactivados obtenidos exitosamente!",
+            empleados: empleadoInfos
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "¡Error al obtener los empleados desactivados!",
+            error: error
+        });
+    }
 };
 
 exports.reactivateById = async (req, res) => {

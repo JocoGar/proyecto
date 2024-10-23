@@ -66,4 +66,9 @@ db.tipoHabitacion.hasMany(db.habitacion, { foreignKey: 'id_tipo_habitacion' });
 db.prodService.belongsTo(db.tipoProdservice, { foreignKey: 'id_tipo_prodservice' });
 db.tipoProdservice.hasMany(db.prodService, { foreignKey: 'id_tipo_prodservice' });
 
+// Empleados con Usuarios
+db.empleado.belongsTo(db.usuario, { foreignKey: 'id_usuario' });
+db.usuario.hasMany(db.empleado, { foreignKey: 'id_usuario' });
+
+
 module.exports = db;
