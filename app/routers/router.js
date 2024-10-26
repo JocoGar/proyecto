@@ -37,8 +37,6 @@ router.get('/api/prodservices/all', prodServiceController.retrieveAllProdService
 router.get('/api/prodservices/onebyid/:id', prodServiceController.getProdServiceById);
 router.put('/api/prodservices/update/:id', prodServiceController.updateById);
 router.delete('/api/prodservices/delete/:id', prodServiceController.deleteById);
-router.get('/api/prodservices/tipo', prodServiceController.getProdServicesWithTipo);
-router.get('/api/prodservices/tipo/:id', prodServiceController.getProdServiceByIdConTipo);
 
 // Rutas para reservas
 router.post('/api/reservas/create', reservaController.create);
