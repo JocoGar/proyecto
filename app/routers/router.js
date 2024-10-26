@@ -30,8 +30,6 @@ router.put('/api/habitaciones/update/:id', habitacionController.updateById);
 router.delete('/api/habitaciones/delete/:id', habitacionController.deleteById);
 router.get('/api/habitaciones/deactivated', habitacionController.retrieveAllDesactivadas);
 router.put('/api/habitaciones/reactivate/:id', habitacionController.reactivateById);
-router.get('/api/habitaciones/tipo', habitacionController.getHabitacionesWithTipo);
-router.get('/api/habitaciones/tipo/:id', habitacionController.getHabitacionByIdConTipo);
 
 // Rutas para productos y servicios
 router.post('/api/prodservices/create', prodServiceController.create);

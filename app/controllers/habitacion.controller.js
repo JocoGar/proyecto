@@ -1,4 +1,3 @@
-
 const db = require('../config/db.config.js');
 const Habitacion = db.habitacion;
 const TipoHabitacion = db.tipoHabitacion;
@@ -28,9 +27,17 @@ exports.create = (req, res) => {
     }
 };
 
+// Método modificado para obtener todas las habitaciones con tipo
 exports.retrieveAllHabitaciones = (req, res) => {
     Habitacion.findAll({
-        where: { estado: 1 }
+        where: { estado: 1 },
+        include: [
+            {
+                model: TipoHabitacion,
+                as: 'tipoHabitacion',
+                attributes: ['nombre', 'descripcion', 'capacidad']
+            }
+        ]
     })
         .then(habitacionInfos => {
             res.status(200).json({
@@ -46,9 +53,18 @@ exports.retrieveAllHabitaciones = (req, res) => {
         });
 };
 
+// Método modificado para obtener una habitación por ID con tipo
 exports.getHabitacionById = (req, res) => {
     let habitacionId = req.params.id;
-    Habitacion.findByPk(habitacionId)
+    Habitacion.findByPk(habitacionId, {
+        include: [
+            {
+                model: TipoHabitacion,
+                as: 'tipoHabitacion',
+                attributes: ['nombre', 'descripcion', 'capacidad']
+            }
+        ]
+    })
         .then(habitacion => {
             if (!habitacion) {
                 return res.status(404).json({
@@ -115,7 +131,6 @@ exports.deleteById = async (req, res) => {
                 error: "404",
             });
         } else {
-            
             habitacion.estado = 0;
             await habitacion.save();
             res.status(200).json({
@@ -130,9 +145,18 @@ exports.deleteById = async (req, res) => {
         });
     }
 };
+
+// Método modificado para obtener habitaciones desactivadas con tipo
 exports.retrieveAllDesactivadas = (req, res) => {
     Habitacion.findAll({
-        where: { estado: 0 }
+        where: { estado: 0 },
+        include: [
+            {
+                model: TipoHabitacion,
+                as: 'tipoHabitacion',
+                attributes: ['nombre', 'descripcion', 'capacidad']
+            }
+        ]
     })
         .then(habitacionInfos => {
             res.status(200).json({
@@ -147,6 +171,7 @@ exports.retrieveAllDesactivadas = (req, res) => {
             });
         });
 };
+
 exports.reactivateById = async (req, res) => {
     try {
         let habitacionId = req.params.id;
@@ -158,9 +183,8 @@ exports.reactivateById = async (req, res) => {
                 error: "404",
             });
         } else {
-            
             habitacion.estado = 1;
-            await habitacion.save();  
+            await habitacion.save();
 
             res.status(200).json({
                 message: "Habitación reactivada exitosamente con id = " + habitacionId,
@@ -173,60 +197,4 @@ exports.reactivateById = async (req, res) => {
             error: error.message,
         });
     }
-};
-
-exports.getHabitacionesWithTipo = (req, res) => {
-    Habitacion.findAll({
-        include: [
-            {
-                model: TipoHabitacion, 
-                as: 'tipoHabitacion', 
-                attributes: ['nombre', 'descripcion', 'capacidad']
-            }
-        ]
-    })
-    .then(habitaciones => {
-        res.status(200).json({
-            message: "Habitaciones con tipo obtenidas exitosamente",
-            habitaciones: habitaciones
-        });
-    })
-    .catch(error => {
-        res.status(500).json({
-            message: "Error al obtener habitaciones con tipo",
-            error: error.message
-        });
-    });
-};
-
-exports.getHabitacionByIdConTipo = (req, res) => {
-    const habitacionId = req.params.id; 
-
-    Habitacion.findByPk(habitacionId, {
-        include: [
-            {
-                model: TipoHabitacion,
-                as: 'tipoHabitacion',
-                attributes: ['nombre', 'descripcion', 'capacidad']
-            }
-        ]
-    })
-    .then(habitacion => {
-        if (!habitacion) {
-            return res.status(404).json({
-                message: "No se encontró la habitación con id = " + habitacionId,
-                error: "404"
-            });
-        }
-        res.status(200).json({
-            message: "Habitación obtenida exitosamente con id = " + habitacionId,
-            habitacion: habitacion
-        });
-    })
-    .catch(error => {
-        res.status(500).json({
-            message: "Error al obtener la habitación con id = " + habitacionId,
-            error: error.message
-        });
-    });
 };
