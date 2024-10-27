@@ -70,7 +70,7 @@ exports.getReservaById = (req, res) => {
             {
                 model: Habitacion,
                 as: 'habitacion',
-                attributes: ['numero_habitacion']
+                attributes: ['numero_habitacion', 'precio_noche']
             }
         ]
     })
