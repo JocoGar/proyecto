@@ -4,6 +4,7 @@ const cors = require('cors');
 const db = require('./app/config/db.config.js');
 const router = require('./app/routers/router.js'); 
 const router1 = require('./app/routers/router1.js'); 
+const stripe = require('stripe')('sk_test_51QCXsxJcJZoNzrTNL5RwMSF4LYyAwAT7d1IRnQgdzHVAc5gfQvBhkKYUcn76agxCcfxGm8NNcEFdGNi4eAnkFCEq00JGPpPLpQ');
 
 const app = express();
 
@@ -13,7 +14,26 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-app.use(bodyParser.json());
+app.use(express.json());
+
+app.post('/create-payment-intent', async (req, res) => {
+  const { amount } = req.body;
+  console.log('Amount received:', amount); // Añadido para verificar
+  if (!amount) {
+      return res.status(400).send({ error: 'Missing required param: amount' });
+  }
+  try {
+      const paymentIntent = await stripe.paymentIntents.create({
+          amount,
+          currency: 'usd',
+      });
+      res.send({ clientSecret: paymentIntent.client_secret });
+  } catch (error) {
+      console.error('Error al crear PaymentIntent:', error); // Añadido para registrar errores
+      res.status(500).send({ error: error.message });
+  }
+});
+
 
 db.sequelize.sync({ force: false }).then(() => {
   console.log('Resync with { force: false }');
