@@ -3,6 +3,8 @@ const FacturaDetalle = db.facturaDetalle;
 const FacturaEncabezado = db.facturaEncabezado;
 const Reserva = db.reserva;
 const ProductoServicio = db.prodService;
+const Cliente = db.cliente;
+const Habitacion = db.habitacion;
 
 
 exports.create = (req, res) => {
@@ -35,15 +37,23 @@ exports.retrieveAllDetalles = (req, res) => {
         include: [
             {
                 model: FacturaEncabezado,
-                attributes: ['fecha', 'id_cliente', 'total']
+                attributes: ['fecha', 'id_cliente', 'total'],
+                include: [{
+                    model: Cliente,
+                    attributes: ['nombre', 'apellido'] 
+                }]
             },
             {
                 model: Reserva,
-                attributes: ['check_in', 'check_out', 'id_habitacion']
+                attributes: ['id_habitacion'],
+                include: [{
+                    model: Habitacion,
+                    attributes: ['numero_habitacion']
+                }]
             },
             {
                 model: ProductoServicio,
-                attributes: ['nombre', 'descripcion', 'precio', 'id_tipo_prodservice']
+                attributes: ['nombre', 'descripcion', 'precio']
             }
         ]
     })
@@ -61,22 +71,29 @@ exports.retrieveAllDetalles = (req, res) => {
     });
 };
 
-
 exports.getDetalleById = (req, res) => {
     let detalleId = req.params.id;
     FacturaDetalle.findByPk(detalleId, {
         include: [
             {
                 model: FacturaEncabezado,
-                attributes: ['fecha', 'id_cliente', 'total']
+                attributes: ['fecha', 'id_cliente', 'total'],
+                include: [{
+                    model: Cliente,
+                    attributes: ['nombre', 'apellido'] 
+                }]
             },
             {
                 model: Reserva,
-                attributes: ['check_in', 'check_out', 'id_habitacion']
+                attributes: ['id_habitacion'],
+                include: [{
+                    model: Habitacion,
+                    attributes: ['numero_habitacion'] 
+                }]
             },
             {
                 model: ProductoServicio,
-                attributes: ['nombre', 'descripcion', 'precio', 'id_tipo_prodservice']
+                attributes: ['nombre', 'descripcion', 'precio']
             }
         ]
     })

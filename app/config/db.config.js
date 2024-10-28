@@ -50,9 +50,14 @@ db.habitacion.hasMany(db.reserva, { foreignKey: 'id_habitacion' });
 
 // FacturaDetalle con FacturaEncabezado y ProdServices
 db.facturaDetalle.belongsTo(db.facturaEncabezado, { foreignKey: 'id_factura_encabezado' });
-db.facturaDetalle.belongsTo(db.prodService, { foreignKey: 'id_producto_service' });
+db.facturaDetalle.belongsTo(db.prodService, { foreignKey: 'id_producto_servicio' });
 db.facturaEncabezado.hasMany(db.facturaDetalle, { foreignKey: 'id_factura_encabezado' });
-db.prodService.hasMany(db.facturaDetalle, { foreignKey: 'id_producto_service' });
+db.prodService.hasMany(db.facturaDetalle, { foreignKey: 'id_producto_servicio' });
+
+// FacturaDetalle con Reserva
+db.facturaDetalle.belongsTo(db.reserva, { foreignKey: 'id_reserva' });
+db.reserva.hasMany(db.facturaDetalle, { foreignKey: 'id_reserva' });
+
 
 // FacturaEncabezado con Clientes
 db.facturaEncabezado.belongsTo(db.cliente, { foreignKey: 'id_cliente' });
