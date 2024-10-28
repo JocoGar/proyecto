@@ -11,7 +11,7 @@ exports.create = async (req, res) => {
             check_out: req.body.check_out,
             id_cliente: req.body.id_cliente,
             id_habitacion: req.body.id_habitacion,
-            estado: req.body.estado
+            estado: req.body.estado || 1 
         };
 
         const reserva = await Reserva.create(reservaData);
