@@ -1,5 +1,6 @@
 const db = require('../config/db.config.js');
 const Cliente = db.cliente;
+const { Op } = db.Sequelize; 
 
 exports.create = (req, res) => {
     let cliente = {};
@@ -42,23 +43,48 @@ exports.retrieveAllClientes = (req, res) => {
 };
 
 exports.getClienteById = (req, res) => {
-    let clienteId = req.params.id;
-    Cliente.findByPk(clienteId)
+    let valorBusqueda = req.params.id;
+
+    
+    let whereClause = {};
+    if (!isNaN(valorBusqueda)) {
+      
+        whereClause = {
+            [Op.or]: [  
+                { id_cliente: valorBusqueda },
+                { telefono: valorBusqueda }
+            ]
+        };
+    } else if (valorBusqueda.includes("@")) {
+        
+        whereClause.email = valorBusqueda;
+    } else {
+        
+        whereClause = {
+            [Op.or]: [  
+                { nombre: valorBusqueda },
+                { apellido: valorBusqueda }
+            ]
+        };
+    }
+
+
+    Cliente.findOne({ where: whereClause })
         .then(cliente => {
             if (!cliente) {
                 return res.status(404).json({
-                    message: "No se encontró el cliente con id = " + clienteId,
+                    message: "No se encontró un cliente con el criterio proporcionado.",
                     error: "404"
                 });
             }
             res.status(200).json({
-                message: "Cliente obtenido exitosamente con id = " + clienteId,
+                message: "Cliente obtenido exitosamente",
                 cliente: cliente
             });
         })
         .catch(error => {
             res.status(500).json({
-                message: "¡Error al obtener el cliente con id!",
+                message: "¡Error al obtener el cliente!",
                 error: error
             });
         });
